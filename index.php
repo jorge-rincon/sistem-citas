@@ -10,32 +10,34 @@
 
 <body>
     <div class="container-sm">
-        <div class="card">
+        <div class="card position-absolute top-50 start-50 translate-middle">
             <div class="card-body">
-                <form action="controller/CitaController.php" method="post" class="row g-3" novalidate="novalidate">
+                <form action="controller/CitaController.php" method="post" class="row g-3">
                     <div class="col-md-6">
                         <label for="inputNombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="inputNombre">
+                        <input type="text" class="form-control" name="nombre" id="inputNombre" required>
                     </div>
                     <div class="col-md-6">
                         <label for="inputDni" class="form-label">DNI</label>
-                        <input type="text" class="form-control" id="inputDni">
-                        <div class="invalid-feedback">
-                            DNI no valido, ingrese uno valido
-                        </div>
+                        <input type="text" class="form-control" name="dni" id="inputDni" required>
                     </div>
                     <div class="col-md-6">
                         <label for="inputTelef" class="form-label">Telefono</label>
-                        <input type="email" class="form-control" id="inputTelef">
+                        <input type="text" class="form-control" name="telefono" id="inputTelef" required>
                     </div>
                     <div class="col-md-6">
                         <label for="inputEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="inputEmail">
+                        <input type="email" class="form-control" name="correo" id="inputEmail" required>
+                        <div class="invalid-feedback">
+                            Formato de correo invalido
+                        </div>
+                        <div class="valid-feedback">
+                            Formato de correo valido
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label for="inputState" class="form-label">Tipo cita</label>
-                        <select id="inputState" class="form-select">
-                            <option selected>Seleccione...</option>
+                        <select id="inputState" name="tipoCita" class="form-select" required>
                         </select>
                     </div>
                     <div class="col-12">
@@ -44,6 +46,7 @@
                 </form>
             </div>
         </div>
+
     </div>
 
 </body>
@@ -51,22 +54,38 @@
 <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {
+        //validamos la existencia del DNI
         $("#inputDni").blur(function() {
             $.post("controller/ajax/pacienteAjax.php", {
                     DNI: $("#inputDni").val()
                 },
                 function(data, status) {
-                    if (data['status'] === 200) {
+                    const row = JSON.parse(data)
+                    $("#inputState").empty();
+                    if (row.status === 200) {
                         $("#inputState").append($("<option>", {
-                            value: data['value'],
-                            text: data['text']
+                            value: row.value,
+                            text: row.text
                         }))
-                    } else {
-                        $("#inputDni").addClass('is-invalid');
                     }
 
                 });
         });
+
+        //validamos campo email
+        const email = document.getElementById("inputEmail");
+        // expresion regular para validar correo
+        const validEmail = /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/;
+        email.addEventListener('blur', (e) => {
+            let inEmail = email.value
+            if (validEmail.test(inEmail)) {
+                email.classList.remove('is-invalid');
+                email.classList.add('is-valid');
+            } else {
+                email.classList.add('is-invalid');
+            }
+        })
+
     });
 </script>
 
